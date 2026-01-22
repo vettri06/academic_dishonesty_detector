@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="text-center">
+        <div class="mb-4">
+            <div class="spinner-border text-primary" role="status" style="width: 4rem; height: 4rem;">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+        <h2 class="mb-3">Analyzing Answer Scripts</h2>
+        <p class="text-muted mb-4" id="status-text">Please wait while we process the uploaded files...</p>
+        
+        <div class="card shadow-sm border-0" style="max-width: 500px; margin: 0 auto;">
+            <div class="card-body text-start">
+                <h5 class="card-title mb-3"><i class="fas fa-cogs me-2"></i>Process Breakdown</h5>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex align-items-center" id="step-1">
+                        <i class="far fa-circle me-3 text-muted" id="icon-1"></i>
+                        <div>
+                            <strong>Step 1: OCR Extraction</strong>
+                            <div class="small text-muted">Converting images to text using AI</div>
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex align-items-center" id="step-2">
+                        <i class="far fa-circle me-3 text-muted" id="icon-2"></i>
+                        <div>
+                            <strong>Step 2: Text Normalization</strong>
+                            <div class="small text-muted">Cleaning and formatting extracted text</div>
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex align-items-center" id="step-3">
+                        <i class="far fa-circle me-3 text-muted" id="icon-3"></i>
+                        <div>
+                            <strong>Step 3: Similarity Analysis</strong>
+                            <div class="small text-muted">Comparing scripts for potential matches</div>
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex align-items-center" id="step-4">
+                        <i class="far fa-circle me-3 text-muted" id="icon-4"></i>
+                        <div>
+                            <strong>Step 4: Report Generation</strong>
+                            <div class="small text-muted">Compiling final results and recommendations</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const sessionId = {{ session_id }};
+        const statusText = document.getElementById('status-text');
+        
+        function updateStep(stepNum, status) {
+            const icon = document.getElementById(`icon-${stepNum}`);
+            const item = document.getElementById(`step-${stepNum}`);
+            
+            if (status === 'active') {
+                icon.className = 'fas fa-spinner fa-spin me-3 text-primary';
+                item.classList.add('bg-light');
+            } else if (status === 'completed') {
+                icon.className = 'fas fa-check-circle me-3 text-success';
+                item.classList.remove('bg-light');
+            } else {
+                icon.className = 'far fa-circle me-3 text-muted';
+                item.classList.remove('bg-light');
+            }
+        }
+
+        // Simulate progress updates since the backend process is synchronous
+        // Ideally, we'd use WebSockets or Server-Sent Events for real updates
+        let currentStep = 1;
+        updateStep(1, 'active');
+        
+        const timers = [
+            setTimeout(() => {
+                updateStep(1, 'completed');
+                updateStep(2, 'active');
+                statusText.innerText = "Cleaning and normalizing extracted text...";
+            }, 10000), // Guessing OCR takes about 10s
+            
+            setTimeout(() => {
+                updateStep(2, 'completed');
+                updateStep(3, 'active');
+                statusText.innerText = "Comparing scripts for similarities...";
+            }, 12000),
+            
+            setTimeout(() => {
+                updateStep(3, 'completed');
+                updateStep(4, 'active');
+                statusText.innerText = "Generating final report...";
+            }, 15000)
+        ];
+
+        // Start the actual analysis
+        fetch(`/analyze_scripts/${sessionId}`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Clear all simulated timers
+            timers.forEach(timer => clearTimeout(timer));
+            
+            // Mark all steps as complete
+            [1, 2, 3, 4].forEach(i => updateStep(i, 'completed'));
+            statusText.innerText = "Analysis complete! Redirecting...";
+            
+            if (data.status === 'success' || data.redirect_url) {
+                setTimeout(() => {
+                    window.location.href = data.redirect_url;
+                }, 1000);
+            } else {
+                // Handle error
+                statusText.innerText = "An error occurred: " + (data.message || "Unknown error");
+                statusText.classList.add('text-danger');
+                statusText.classList.remove('text-muted');
+            }
+        })
+        .catch(error => {
+            timers.forEach(timer => clearTimeout(timer));
+            console.error('Error:', error);
+            statusText.innerText = "An error occurred during analysis. Please try again.";
+            statusText.classList.add('text-danger');
+            statusText.classList.remove('text-muted');
+        });
+    });
+</script>
+{% endblock %}

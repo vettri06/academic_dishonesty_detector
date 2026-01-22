@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0"><i class="fas fa-search me-2"></i>Academic Dishonesty Check</h4>
+                </div>
+                <div class="card-body">
+                    <!-- Flash Messages -->
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas {% if category == 'error' %}fa-exclamation-circle{% else %}fa-check-circle{% endif %} me-2"></i>
+                                        <span>{{ message }}</span>
+                                    </div>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    <form method="POST" class="needs-validation" novalidate>
+                        <!-- Session Name -->
+                        <div class="mb-4">
+                            <label for="session_name" class="form-label">
+                                <i class="fas fa-clipboard me-2 text-primary"></i>Session Name
+                            </label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="session_name" 
+                                   name="session_name" 
+                                   placeholder="e.g., Midterm Exam Analysis - Physics 101"
+                                   required>
+                            <div class="form-text">Give a descriptive name for this analysis session</div>
+                            <div class="invalid-feedback">
+                                Please provide a session name.
+                            </div>
+                        </div>
+
+                        <!-- Subject Name -->
+                        <div class="mb-4">
+                            <label for="subject_name" class="form-label">
+                                <i class="fas fa-book me-2 text-primary"></i>Subject Name
+                            </label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="subject_name" 
+                                   name="subject_name" 
+                                   placeholder="e.g., Physics, Mathematics, Chemistry"
+                                   required>
+                            <div class="invalid-feedback">
+                                Please provide a subject name.
+                            </div>
+                        </div>
+
+                        <!-- Number of Students -->
+                        <div class="mb-4">
+                            <label for="num_students" class="form-label">
+                                <i class="fas fa-users me-2 text-primary"></i>Number of Students
+                            </label>
+                            <select class="form-select" id="num_students" name="num_students" required>
+                                <option value="" selected disabled>Select number of students</option>
+                                <option value="2">2 Students</option>
+                                <option value="3">3 Students</option>
+                                <option value="4">4 Students</option>
+                                <option value="5">5 Students</option>
+                                <option value="6">6 Students</option>
+                                <option value="7">7 Students</option>
+                                <option value="8">8 Students</option>
+                                <option value="9">9 Students</option>
+                                <option value="10">10 Students</option>
+                            </select>
+                            <div class="form-text">Select the number of answer scripts to analyze</div>
+                            <div class="invalid-feedback">
+                                Please select the number of students.
+                            </div>
+                        </div>
+
+                        <!-- Information Card -->
+                        <div class="alert alert-info">
+                            <h6><i class="fas fa-info-circle me-2"></i>How it works:</h6>
+                            <ul class="mb-0">
+                                <li>Provide session details on this page</li>
+                                <li>Add student information and upload answer scripts in the next step</li>
+                                <li>Our AI system will analyze for similarities and patterns</li>
+                                <li>Get detailed reports with similarity percentages and recommendations</li>
+                            </ul>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                Continue to Student Details <i class="fas fa-arrow-right ms-2"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-control, .form-select {
+    border-radius: 12px;
+    padding: 12px 16px;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #4361ee;
+    box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
+}
+
+.card {
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+    color: white;
+    border-radius: 20px 20px 0 0 !important;
+    padding: 1.5rem;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Form validation
+    const forms = document.querySelectorAll('.needs-validation');
+    forms.forEach(form => {
+        form.addEventListener('submit', event => {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
+});
+</script>
+{% endblock %}

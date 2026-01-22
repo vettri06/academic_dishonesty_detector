@@ -1,0 +1,346 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0"><i class="fas fa-upload me-2"></i>Upload Student Details & Answer Scripts</h4>
+                    <p class="mb-0 opacity-75">Session: {{ session.session_name }} - {{ session.subject_name }}</p>
+                </div>
+                <div class="card-body">
+                    <!-- Flash Messages -->
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas {% if category == 'error' %}fa-exclamation-circle{% else %}fa-check-circle{% endif %} me-2"></i>
+                                        <span>{{ message }}</span>
+                                    </div>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        <input type="hidden" name="num_students" value="{{ num_students }}">
+
+                        <!-- Student Forms with Individual File Uploads -->
+                        <div class="mb-4">
+                            <h5 class="mb-3"><i class="fas fa-user-graduate me-2"></i>Student Information ({{ num_students }} students)</h5>
+                            <p class="text-muted mb-3">Please provide details for each student and upload their individual answer script.</p>
+                            
+                            <div class="row g-4">
+                                {% for i in range(1, num_students + 1) %}
+                                <div class="col-12">
+                                    <div class="card student-form-card">
+                                        <div class="card-header bg-light">
+                                            <h6 class="mb-0">
+                                                <span class="student-number">{{ i }}</span> Student {{ i }}
+                                            </h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <!-- Student Information -->
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="student_name_{{ i }}" class="form-label">
+                                                            <i class="fas fa-user me-1 text-primary"></i>Full Name *
+                                                        </label>
+                                                        <input type="text" 
+                                                               class="form-control" 
+                                                               id="student_name_{{ i }}" 
+                                                               name="student_name_{{ i }}" 
+                                                               placeholder="Enter student full name"
+                                                               required>
+                                                        <div class="invalid-feedback">
+                                                            Please enter student name for Student {{ i }}.
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <label for="reg_number_{{ i }}" class="form-label">
+                                                            <i class="fas fa-id-card me-1 text-primary"></i>Registration Number *
+                                                        </label>
+                                                        <input type="text" 
+                                                               class="form-control" 
+                                                               id="reg_number_{{ i }}" 
+                                                               name="reg_number_{{ i }}" 
+                                                               placeholder="Enter registration number"
+                                                               required>
+                                                        <div class="invalid-feedback">
+                                                            Please enter registration number for Student {{ i }}.
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <label for="exam_number_{{ i }}" class="form-label">
+                                                            <i class="fas fa-file-alt me-1 text-primary"></i>Exam Number *
+                                                        </label>
+                                                        <input type="text" 
+                                                               class="form-control" 
+                                                               id="exam_number_{{ i }}" 
+                                                               name="exam_number_{{ i }}" 
+                                                               placeholder="Enter exam number"
+                                                               required>
+                                                        <div class="invalid-feedback">
+                                                            Please enter exam number for Student {{ i }}.
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- File Upload for this Student -->
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="answer_script_{{ i }}" class="form-label">
+                                                            <i class="fas fa-file-upload me-1 text-success"></i>Answer Script *
+                                                        </label>
+                                                        <div class="file-upload-single" id="fileUploadSingle{{ i }}">
+                                                            <input type="file" 
+                                                                   class="form-control d-none" 
+                                                                   id="answer_script_{{ i }}" 
+                                                                   name="answer_script_{{ i }}" 
+                                                                   accept=".pdf,.jpg,.jpeg,.png,.webp"
+                                                                   onchange="updateFileName({{ i }})"
+                                                                   required>
+                                                            <div class="file-upload-placeholder text-center p-4 border rounded">
+                                                                <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
+                                                                <p class="mb-1">Click to upload answer script</p>
+                                                                <small class="text-muted">PDF, JPG, JPEG, PNG, WEBP (Max 10MB)</small>
+                                                            </div>
+                                                            <div class="file-selected mt-2 d-none" id="fileSelected{{ i }}">
+                                                                <div class="alert alert-success py-2">
+                                                                    <i class="fas fa-check-circle me-2 text-success"></i>
+                                                                    <span id="fileName{{ i }}"></span>
+                                                                    <button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="clearFile({{ i }})">
+                                                                        <i class="fas fa-times"></i>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="invalid-feedback">
+                                                            Please upload answer script for Student {{ i }}.
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- File Info for this student -->
+                                                    <div class="alert alert-info small">
+                                                        <i class="fas fa-info-circle me-1"></i>
+                                                        <strong>Upload individual answer script for this student.</strong><br>
+                                                        File will be automatically compressed if needed.
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- General Instructions -->
+                        <div class="alert alert-warning">
+                            <h6><i class="fas fa-lightbulb me-2"></i>Important Instructions:</h6>
+                            <ul class="mb-0 small">
+                                <li>Each student must have their own answer script uploaded</li>
+                                <li>Ensure answer scripts are clearly visible and well-lit</li>
+                                <li>Maximum file size: 10MB per student</li>
+                                <li>Large files will be automatically compressed for OCR processing</li>
+                                <li>Supported formats: PDF, JPG, JPEG, PNG, WEBP</li>
+                            </ul>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{{ url_for('malpractice_check') }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back
+                            </a>
+                            <div>
+                                <button type="submit" class="btn btn-success me-2">
+                                    <i class="fas fa-play me-2"></i>Start Analysis
+                                </button>
+                                <button type="button" class="btn btn-outline-primary" onclick="addDemoData()">
+                                    <i class="fas fa-magic me-2"></i>Fill Demo Data
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.student-form-card {
+    border: 2px solid #e9ecef;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    margin-bottom: 1rem;
+}
+
+.student-form-card:hover {
+    border-color: #4361ee;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.student-number {
+    background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    margin-right: 10px;
+}
+
+.file-upload-single {
+    cursor: pointer;
+}
+
+.file-upload-placeholder {
+    background: rgba(67, 97, 238, 0.05);
+    border: 2px dashed #4361ee;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.file-upload-placeholder:hover {
+    background: rgba(67, 97, 238, 0.1);
+    border-color: #3a0ca3;
+}
+
+.card-header.bg-light {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize file upload placeholders
+    for (let i = 1; i <= {{ num_students }}; i++) {
+        const uploadArea = document.getElementById(`fileUploadSingle${i}`);
+        const fileInput = document.getElementById(`answer_script_${i}`);
+        const placeholder = uploadArea.querySelector('.file-upload-placeholder');
+        
+        // Click handler for file upload
+        placeholder.addEventListener('click', function() {
+            fileInput.click();
+        });
+        
+        // Drag and drop functionality
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            placeholder.style.background = 'rgba(67, 97, 238, 0.2)';
+            placeholder.style.borderColor = '#3a0ca3';
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            placeholder.style.background = 'rgba(67, 97, 238, 0.05)';
+            placeholder.style.borderColor = '#4361ee';
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            placeholder.style.background = 'rgba(67, 97, 238, 0.05)';
+            placeholder.style.borderColor = '#4361ee';
+            
+            if (e.dataTransfer.files.length > 0) {
+                fileInput.files = e.dataTransfer.files;
+                updateFileName(i);
+            }
+        });
+    }
+
+    // Form validation
+    const forms = document.querySelectorAll('.needs-validation');
+    forms.forEach(form => {
+        form.addEventListener('submit', event => {
+            let isValid = true;
+            
+            // Check if all required files are uploaded
+            for (let i = 1; i <= {{ num_students }}; i++) {
+                const fileInput = document.getElementById(`answer_script_${i}`);
+                if (!fileInput.files.length) {
+                    isValid = false;
+                    fileInput.classList.add('is-invalid');
+                } else {
+                    fileInput.classList.remove('is-invalid');
+                }
+            }
+            
+            if (!form.checkValidity() || !isValid) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
+});
+
+function updateFileName(studentNumber) {
+    const fileInput = document.getElementById(`answer_script_${studentNumber}`);
+    const fileNameSpan = document.getElementById(`fileName${studentNumber}`);
+    const fileSelectedDiv = document.getElementById(`fileSelected${studentNumber}`);
+    const placeholder = document.querySelector(`#fileUploadSingle${studentNumber} .file-upload-placeholder`);
+    
+    if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        const fileSize = (file.size / 1024 / 1024).toFixed(2);
+        fileNameSpan.textContent = `${file.name} (${fileSize} MB)`;
+        fileSelectedDiv.classList.remove('d-none');
+        placeholder.style.display = 'none';
+        fileInput.classList.remove('is-invalid');
+    }
+}
+
+function clearFile(studentNumber) {
+    const fileInput = document.getElementById(`answer_script_${studentNumber}`);
+    const fileSelectedDiv = document.getElementById(`fileSelected${studentNumber}`);
+    const placeholder = document.querySelector(`#fileUploadSingle${studentNumber} .file-upload-placeholder`);
+    
+    fileInput.value = '';
+    fileSelectedDiv.classList.add('d-none');
+    placeholder.style.display = 'block';
+}
+
+function addDemoData() {
+    const demoData = [
+        { name: 'John Smith', reg: '2023001', exam: 'PHY101001' },
+        { name: 'Sarah Johnson', reg: '2023002', exam: 'PHY101002' },
+        { name: 'Michael Brown', reg: '2023003', exam: 'PHY101003' },
+        { name: 'Emily Davis', reg: '2023004', exam: 'PHY101004' },
+        { name: 'David Wilson', reg: '2023005', exam: 'PHY101005' },
+        { name: 'Jennifer Lee', reg: '2023006', exam: 'PHY101006' },
+        { name: 'Robert Taylor', reg: '2023007', exam: 'PHY101007' },
+        { name: 'Lisa Anderson', reg: '2023008', exam: 'PHY101008' },
+        { name: 'William Martinez', reg: '2023009', exam: 'PHY101009' },
+        { name: 'Karen Thomas', reg: '2023010', exam: 'PHY101010' }
+    ];
+
+    for (let i = 1; i <= {{ num_students }}; i++) {
+        const demo = demoData[i-1] || demoData[0];
+        document.getElementById(`student_name_${i}`).value = demo.name;
+        document.getElementById(`reg_number_${i}`).value = demo.reg;
+        document.getElementById(`exam_number_${i}`).value = demo.exam;
+    }
+
+    // Show success message
+    const alertDiv = document.createElement('div');
+    alertDiv.className = 'alert alert-success alert-dismissible fade show mt-3';
+    alertDiv.innerHTML = `
+        <i class="fas fa-check-circle me-2"></i>
+        Demo student data filled successfully! Please upload individual answer scripts for each student.
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.querySelector('.card-body').insertBefore(alertDiv, document.querySelector('.alert-warning'));
+}
+</script>
+{% endblock %}

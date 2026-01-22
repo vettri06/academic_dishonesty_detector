@@ -1,0 +1,425 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Welcome Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card fade-in">
+                <div class="card-body text-center py-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-8 text-md-start">
+                            <h1 class="display-5 mb-2">Welcome, {{ faculty_name }}! 👋</h1>
+                            <p class="lead text-muted mb-0">Monitor and detect academic dishonesty with our advanced analysis system</p>
+                        </div>
+                        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                            <div class="d-flex justify-content-md-end justify-content-center gap-2">
+                                <span class="badge bg-success fs-6">
+                                    <i class="fas fa-shield-alt me-1"></i>Secure
+                                </span>
+                                <span class="badge bg-info fs-6">
+                                    <i class="fas fa-bolt me-1"></i>Fast
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row mb-4 slide-up">
+        <div class="col-xl-4 col-md-6 mb-3">
+            <div class="card stats-card h-100">
+                <div class="card-body text-center p-4">
+                    <div class="stats-icon mb-3">
+                        <i class="fas fa-chart-bar fa-2x text-primary"></i>
+                    </div>
+                    <div class="stats-number display-6 fw-bold text-primary mb-2">{{ total_sessions }}</div>
+                    <div class="stats-label text-muted text-uppercase small fw-bold">Total Analyses</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4 col-md-6 mb-3">
+            <div class="card stats-card h-100">
+                <div class="card-body text-center p-4">
+                    <div class="stats-icon mb-3">
+                        <i class="fas fa-clock fa-2x text-success"></i>
+                    </div>
+                    <div class="stats-number display-6 fw-bold text-success mb-2">{{ recent_sessions|length }}</div>
+                    <div class="stats-label text-muted text-uppercase small fw-bold">Recent Sessions</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4 col-md-12 mb-3">
+            <div class="card stats-card h-100">
+                <div class="card-body text-center p-4">
+                    <div class="stats-icon mb-3">
+                        <i class="fas fa-users fa-2x text-warning"></i>
+                    </div>
+                    <div class="stats-number display-6 fw-bold text-warning mb-2">
+                        {% if recent_sessions %}
+                            {{ recent_sessions|map(attribute='students')|map('length')|sum }}
+                        {% else %}
+                            0
+                        {% endif %}
+                    </div>
+                    <div class="stats-label text-muted text-uppercase small fw-bold">Students Analyzed</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-6 col-lg-6 mb-4">
+            <div class="card h-100 action-card">
+                <div class="card-header d-flex align-items-center">
+                    <i class="fas fa-rocket fa-lg text-primary me-3"></i>
+                    <h5 class="mb-0">Start New Analysis</h5>
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <p class="card-text flex-grow-1">
+                        Begin a new academic dishonesty analysis by uploading student answer scripts. 
+                        Our system will detect similarities, patterns, and provide detailed reports.
+                    </p>
+                    <div class="mt-auto pt-3">
+                        <a href="{{ url_for('malpractice_check') }}" class="btn btn-primary btn-lg w-100">
+                            <i class="fas fa-play-circle me-2"></i>Start Analysis
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-6 col-lg-6 mb-4">
+            <div class="card h-100 action-card">
+                <div class="card-header d-flex align-items-center">
+                    <i class="fas fa-chart-line fa-lg text-success me-3"></i>
+                    <h5 class="mb-0">View Analysis History</h5>
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <p class="card-text flex-grow-1">
+                        Access your previous analysis sessions, review detailed results, 
+                        generate comprehensive reports, and track academic integrity trends over time.
+                    </p>
+                    <div class="mt-auto pt-3">
+                        <a href="{{ url_for('history') }}" class="btn btn-success btn-lg w-100">
+                            <i class="fas fa-history me-2"></i>View History
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Grid -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-star me-2"></i>Key Features</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="feature-item text-center p-3">
+                                <div class="feature-icon mb-3">
+                                    <i class="fas fa-file-pdf fa-2x text-danger"></i>
+                                </div>
+                                <h6>PDF Reports</h6>
+                                <p class="text-muted small mb-0">Generate comprehensive PDF reports with detailed findings and recommendations</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="feature-item text-center p-3">
+                                <div class="feature-icon mb-3">
+                                    <i class="fas fa-shield-alt fa-2x text-success"></i>
+                                </div>
+                                <h6>Secure & Private</h6>
+                                <p class="text-muted small mb-0">Enterprise-grade security ensuring your data remains confidential and protected</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Sessions -->
+    {% if recent_sessions %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Recent Analysis Sessions</h5>
+                    <a href="{{ url_for('history') }}" class="btn btn-sm btn-outline-primary">
+                        View All <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        {% for session in recent_sessions %}
+                        <div class="col-lg-6 col-md-6">
+                            <div class="session-card card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h6 class="card-title mb-0 text-truncate">{{ session.session_name }}</h6>
+                                        <span class="badge bg-light text-dark small">
+                                            {{ session.students|length }} students
+                                        </span>
+                                    </div>
+                                    <p class="card-text text-muted small mb-2">
+                                        <i class="fas fa-book me-1"></i>{{ session.subject_name }}
+                                    </p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar me-1"></i>
+                                            {{ session.created_at.strftime('%Y-%m-%d %H:%M') }}
+                                        </small>
+                                        <a href="{{ url_for('results', session_id=session.id) }}" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            View Results
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <!-- Empty State -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <div class="empty-state-icon mb-4">
+                        <i class="fas fa-clipboard-list fa-4x text-muted"></i>
+                    </div>
+                    <h3 class="text-muted mb-3">No Analysis Sessions Yet</h3>
+                    <p class="text-muted mb-4">Get started by creating your first analysis session to detect academic dishonesty patterns.</p>
+                    <a href="{{ url_for('malpractice_check') }}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-plus me-2"></i>Create First Analysis
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+/* Stats Cards */
+.stats-card {
+    border: none;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    background: var(--card-bg);
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.stats-icon {
+    width: 70px;
+    height: 70px;
+    margin: 0 auto;
+    background: rgba(var(--primary-rgb), 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stats-number {
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.stats-label {
+    letter-spacing: 0.5px;
+}
+
+/* Action Cards */
+.action-card {
+    border: none;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+}
+
+.action-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.action-card .card-header {
+    background: transparent;
+    border-bottom: 2px solid var(--border-color);
+    padding: 1.5rem 1.5rem 1rem;
+}
+
+.action-card .card-body {
+    padding: 1.5rem;
+}
+
+/* Feature Items */
+.feature-item {
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.feature-item:hover {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+}
+
+.feature-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+    background: rgba(var(--primary-rgb), 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Session Cards */
+.session-card {
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.session-card:hover {
+    border-color: var(--primary);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Empty State */
+.empty-state-icon {
+    opacity: 0.7;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .display-5 {
+        font-size: 2rem;
+    }
+    
+    .stats-number {
+        font-size: 2.5rem;
+    }
+    
+    .stats-icon {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .feature-item {
+        margin-bottom: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .card-body {
+        padding: 1.25rem;
+    }
+    
+    .stats-card .card-body {
+        padding: 1.5rem 1rem;
+    }
+    
+    .action-card .btn {
+        font-size: 0.9rem;
+        padding: 0.75rem 1rem;
+    }
+}
+
+/* Dark mode adjustments */
+[data-bs-theme="dark"] .stats-card {
+    background: rgba(31, 41, 55, 0.8);
+}
+
+[data-bs-theme="dark"] .session-card {
+    background: rgba(31, 41, 55, 0.6);
+    border-color: #374151;
+}
+
+[data-bs-theme="dark"] .feature-item {
+    background: rgba(31, 41, 55, 0.6);
+    border-color: #374151;
+}
+
+[data-bs-theme="dark"] .badge.bg-light {
+    background: #374151 !important;
+    color: #f9fafb !important;
+}
+
+/* Animation enhancements */
+.fade-in {
+    animation: fadeIn 0.8s ease-in;
+}
+
+.slide-up {
+    animation: slideUp 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { 
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to { 
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Grid gap utilities */
+.row.g-3 {
+    margin-right: -0.75rem;
+    margin-left: -0.75rem;
+}
+
+.row.g-3 > [class*="col-"] {
+    padding-right: 0.75rem;
+    padding-left: 0.75rem;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add loading animation to cards
+    const cards = document.querySelectorAll('.card');
+    cards.forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.1}s`;
+    });
+    
+    // Add hover effects
+    const statsCards = document.querySelectorAll('.stats-card');
+    statsCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+});
+</script>
+{% endblock %}

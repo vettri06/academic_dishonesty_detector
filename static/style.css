@@ -1,0 +1,622 @@
+/* CSS Variables for Theming */
+:root {
+    --primary: #4361ee;
+    --secondary: #3f37c9;
+    --success: #4cc9f0;
+    --danger: #f72585;
+    --warning: #f8961e;
+    --info: #4895ef;
+    --light: #f8f9fa;
+    --dark: #212529;
+    --body-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --card-bg: rgba(255, 255, 255, 0.95);
+    --text-color: #212529;
+    --text-muted: #6c757d;
+    --border-color: #dee2e6;
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Dark Theme Variables */
+[data-bs-theme="dark"] {
+    --primary: #6366f1;
+    --secondary: #4f46e5;
+    --success: #10b981;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --info: #06b6d4;
+    --light: #374151;
+    --dark: #f9fafb;
+    --body-bg: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+    --card-bg: rgba(31, 41, 55, 0.95);
+    --text-color: #f9fafb;
+    --text-muted: #9ca3af;
+    --border-color: #374151;
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--body-bg);
+    min-height: 100vh;
+    background-attachment: fixed;
+    color: var(--text-color);
+    transition: all 0.3s ease;
+}
+
+/* Background Classes */
+.bg-gradient-default {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
+
+.bg-gradient-ocean {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+}
+
+.bg-gradient-sunset {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%) !important;
+}
+
+.bg-gradient-forest {
+    background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%) !important;
+}
+
+.bg-solid-light {
+    background: #f8f9fa !important;
+}
+
+.bg-solid-dark {
+    background: #1a1a1a !important;
+}
+
+/* Navbar Styling */
+.navbar {
+    background: var(--primary) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
+    background: linear-gradient(45deg, #fff, #e0e0e0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+[data-bs-theme="dark"] .navbar-brand {
+    background: linear-gradient(45deg, #fff, #d1d5db);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Card Styling */
+.card {
+    border: none;
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(10px);
+    background: var(--card-bg);
+    transition: all 0.3s ease;
+    margin-bottom: 1.5rem;
+    color: var(--text-color);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    background: var(--primary);
+    color: white;
+    border-radius: 20px 20px 0 0 !important;
+    padding: 1.5rem;
+    border: none;
+}
+
+.card-header h4, .card-header h5 {
+    margin: 0;
+    font-weight: 600;
+}
+
+/* Button Styling */
+.btn {
+    border-radius: 12px;
+    padding: 12px 30px;
+    font-weight: 600;
+    border: none;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-primary {
+    background: var(--primary);
+    box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(67, 97, 238, 0.4);
+}
+
+.btn-success {
+    background: var(--success);
+    box-shadow: 0 4px 15px rgba(76, 201, 240, 0.3);
+}
+
+.btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(76, 201, 240, 0.4);
+}
+
+/* Form Styling */
+.form-control {
+    border-radius: 12px;
+    border: 2px solid var(--border-color);
+    padding: 12px 20px;
+    transition: all 0.3s ease;
+    background: var(--card-bg);
+    color: var(--text-color);
+}
+
+.form-control:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
+    background: var(--card-bg);
+}
+
+.form-label {
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 8px;
+}
+
+/* Alert Styling */
+.alert {
+    border-radius: 15px;
+    border: none;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+}
+
+.alert-success {
+    background: linear-gradient(135deg, #d4edda, #c3e6cb);
+    color: #155724;
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+    color: #721c24;
+}
+
+.alert-info {
+    background: linear-gradient(135deg, #d1ecf1, #bee5eb);
+    color: #0c5460;
+}
+
+[data-bs-theme="dark"] .alert-success {
+    background: linear-gradient(135deg, #065f46, #047857);
+    color: #d1fae5;
+}
+
+[data-bs-theme="dark"] .alert-danger {
+    background: linear-gradient(135deg, #7f1d1d, #991b1b);
+    color: #fecaca;
+}
+
+[data-bs-theme="dark"] .alert-info {
+    background: linear-gradient(135deg, #164e63, #0e7490);
+    color: #cffafe;
+}
+
+/* Settings Modal Styles */
+.background-option {
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 10px;
+    border: 2px solid transparent;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.background-option.active {
+    border-color: var(--primary);
+    background: rgba(67, 97, 238, 0.1);
+}
+
+.background-option:hover {
+    transform: scale(1.05);
+}
+
+.bg-preview {
+    width: 100%;
+    height: 60px;
+    border-radius: 8px;
+    margin-bottom: 5px;
+    border: 1px solid var(--border-color);
+}
+
+.gradient-default {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.gradient-ocean {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.gradient-sunset {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+.gradient-forest {
+    background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+}
+
+.solid-light {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+}
+
+.solid-dark {
+    background: #1a1a1a;
+    border: 1px solid #374151;
+}
+
+.theme-btn {
+    flex: 1;
+}
+
+.theme-btn.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+/* Table Styling */
+.table {
+    background: var(--card-bg);
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    color: var(--text-color);
+}
+
+.table th {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 1rem;
+    font-weight: 600;
+}
+
+.table td {
+    padding: 1rem;
+    vertical-align: middle;
+    border-color: var(--border-color);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--light);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary);
+}
+
+/* Auth Pages */
+.auth-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.auth-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    border-radius: 25px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    max-width: 450px;
+    width: 100%;
+    border: 1px solid var(--border-color);
+}
+
+.auth-header {
+    background: var(--primary);
+    color: white;
+    text-align: center;
+    padding: 2.5rem;
+}
+
+.auth-body {
+    padding: 2.5rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .card {
+        margin: 1rem;
+    }
+    
+    .btn {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    .auth-container {
+        padding: 1rem;
+    }
+    
+    .auth-card {
+        max-width: 100%;
+    }
+}
+
+/* Animation Classes */
+.fade-in {
+    animation: fadeIn 0.8s ease-in;
+}
+
+.slide-up {
+    animation: slideUp 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { 
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to { 
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* File Upload Styling */
+.file-upload-area {
+    border: 3px dashed var(--primary);
+    border-radius: 20px;
+    padding: 3rem;
+    text-align: center;
+    background: rgba(67, 97, 238, 0.05);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.file-upload-area:hover {
+    background: rgba(67, 97, 238, 0.1);
+    border-color: var(--secondary);
+}
+
+.file-upload-area.dragover {
+    background: rgba(67, 97, 238, 0.2);
+    border-color: var(--secondary);
+    transform: scale(1.02);
+}
+
+.upload-icon {
+    font-size: 4rem;
+    color: var(--primary);
+    margin-bottom: 1rem;
+}
+
+/* Student Form Styling */
+.student-form-card {
+    border: 2px solid var(--border-color);
+    border-radius: 15px;
+    transition: all 0.3s ease;
+}
+
+.student-form-card:hover {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+}
+
+.student-number {
+    background: var(--primary);
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    margin-right: 10px;
+}
+
+/* Dark mode specific adjustments */
+[data-bs-theme="dark"] .form-control {
+    background: rgba(55, 65, 81, 0.8);
+    border-color: #4b5563;
+    color: #f9fafb;
+}
+
+[data-bs-theme="dark"] .form-control:focus {
+    background: rgba(55, 65, 81, 0.9);
+    border-color: var(--primary);
+}
+
+[data-bs-theme="dark"] .card {
+    background: rgba(31, 41, 55, 0.95);
+}
+
+[data-bs-theme="dark"] .table {
+    background: rgba(31, 41, 55, 0.95);
+}
+
+[data-bs-theme="dark"] .file-upload-area {
+    background: rgba(67, 97, 238, 0.1);
+    border-color: var(--primary);
+}
+
+/* Z-index Fixes for Theme Dropdown */
+.navbar-fixed {
+    position: relative;
+    z-index: 1030; /* Bootstrap navbar z-index */
+}
+
+.theme-dropdown-container {
+    position: relative;
+    z-index: 1050; /* Higher than navbar */
+}
+
+.theme-dropdown {
+    z-index: 1060 !important; /* Ensure dropdown appears above everything */
+    position: absolute !important;
+}
+
+.dropdown-menu {
+    z-index: 1060 !important;
+}
+
+/* Ensure modal appears above everything */
+.modal {
+    z-index: 1070 !important;
+}
+
+.modal-backdrop {
+    z-index: 1060 !important;
+}
+
+/* Main content should have lower z-index */
+.main-content {
+    position: relative;
+    z-index: 1;
+}
+
+/* Navbar specific fixes */
+.navbar {
+    z-index: 1030;
+    position: relative;
+}
+
+.navbar-nav {
+    z-index: 1031;
+}
+
+/* Dropdown menu positioning */
+.dropdown-menu-end {
+    right: 0;
+    left: auto;
+}
+
+/* Theme toggle button styling */
+.theme-toggle-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.theme-toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+.theme-toggle-btn:focus {
+    box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25);
+}
+
+/* Dropdown menu styling */
+.theme-dropdown {
+    min-width: 200px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    margin-top: 10px !important;
+}
+
+.theme-dropdown .dropdown-item {
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin: 2px 8px;
+    width: auto;
+    transition: all 0.3s ease;
+}
+
+.theme-dropdown .dropdown-item:hover {
+    background: var(--primary);
+    color: white;
+    transform: translateX(5px);
+}
+
+.theme-dropdown .dropdown-divider {
+    margin: 8px 0;
+}
+
+/* Mobile responsive fixes */
+@media (max-width: 768px) {
+    .theme-dropdown-container {
+        margin-right: 0.5rem;
+    }
+    
+    .theme-dropdown {
+        position: fixed !important;
+        top: 60px !important;
+        right: 20px !important;
+        left: auto !important;
+        transform: none !important;
+    }
+    
+    .navbar-text {
+        display: none !important;
+    }
+}
+
+/* Ensure cards don't interfere with dropdown */
+.card {
+    position: relative;
+    z-index: 1;
+}
+
+/* Welcome card specific fix */
+.welcome-card {
+    position: relative;
+    z-index: 1;
+}
+
+/* Stats cards */
+.stats-card {
+    position: relative;
+    z-index: 1;
+}
+
+/* Action cards */
+.action-card {
+    position: relative;
+    z-index: 1;
+}

@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2 class="mb-1">🔍 Analysis Results</h2>
+                            <p class="text-muted mb-0">{{ session.session_name }} - {{ session.subject_name }}</p>
+                        </div>
+                        <a href="{{ url_for('generate_report', session_id=session.id) }}" 
+                           class="btn btn-success btn-lg">
+                            📄 Generate PDF Report
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Session Info -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"> Session Information</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <td><strong>Session Name:</strong></td>
+                            <td>{{ session.session_name }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Subject:</strong></td>
+                            <td>{{ session.subject_name }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Analysis Date:</strong></td>
+                            <td>{{ session.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Total Students:</strong></td>
+                            <td>{{ students|length }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"> Quick Stats</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="stats-number text-primary">{{ results|length }}</div>
+                            <div class="stats-label">Suspicious Pairs</div>
+                        </div>
+                        <div class="col-6">
+                            {% set avg_similarity = (results|map(attribute='similarity_score')|list|sum / results|length * 100 if results else 0) %}
+                            <div class="stats-number text-info">{{ "%.1f"|format(avg_similarity) }}%</div>
+                            <div class="stats-label">Avg Similarity</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detection Results -->
+    {% if results %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"> Detection Results</h5>
+                </div>
+                <div class="card-body">
+                    {% for result in results %}
+                    <div class="card mb-4 border-0 shadow-sm">
+                        <div class="card-body">
+                            <!-- Header with similarity score -->
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="mb-0">
+                                    Similarity Detected: 
+                                    <span class="similarity-badge 
+                                        {% if result.similarity_score > 0.8 %}risk-high
+                                        {% elif result.similarity_score > 0.6 %}risk-medium
+                                        {% else %}risk-low{% endif %}">
+                                        {{ (result.similarity_score * 100)|round(1) }}%
+                                    </span>
+                                </h5>
+                                <span class="badge bg-secondary">{{ result.detection_method }}</span>
+                            </div>
+
+                            <!-- Recommendation -->
+                            <div class="alert 
+                                {% if result.similarity_score > 0.8 %}alert-error
+                                {% elif result.similarity_score > 0.6 %}alert-warning
+                                {% else %}alert-info{% endif %} mb-3">
+                                <strong>💡 Recommendation:</strong> {{ result.recommendation }}
+                            </div>
+
+                            <!-- Student Information -->
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <h6>Student {{ result.script1_id }}</h6>
+                                            {% set student1 = students|selectattr("id", "equalto", result.script1_id)|first %}
+                                            {% if student1 %}
+                                            <p class="mb-1"><strong>Name:</strong> {{ student1.name }}</p>
+                                            <p class="mb-1"><strong>Reg No:</strong> {{ student1.reg_number }}</p>
+                                            <p class="mb-0"><strong>Exam No:</strong> {{ student1.exam_number }}</p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <h6>Student {{ result.script2_id }}</h6>
+                                            {% set student2 = students|selectattr("id", "equalto", result.script2_id)|first %}
+                                            {% if student2 %}
+                                            <p class="mb-1"><strong>Name:</strong> {{ student2.name }}</p>
+                                            <p class="mb-1"><strong>Reg No:</strong> {{ student2.reg_number }}</p>
+                                            <p class="mb-0"><strong>Exam No:</strong> {{ student2.exam_number }}</p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Suspicious Lines -->
+                            {% if result.suspicious_lines %}
+                            <button class="btn btn-outline-primary w-100 mb-3" type="button" 
+                                    data-bs-toggle="collapse" 
+                                    data-bs-target="#suspiciousLines{{ result.id }}">
+                                🔍 View Suspicious Lines ({{ result.suspicious_lines|length }} found)
+                            </button>
+                            
+                            <div class="collapse" id="suspiciousLines{{ result.id }}">
+                                <div class="card card-body">
+                                    <h6 class="mb-3">📝 Identical/Suspicious Content:</h6>
+                                    {% for line in result.suspicious_lines %}
+                                    <div class="suspicious-line mb-3">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <small class="text-muted">Student {{ result.script1_id }} (Line {{ line.line_number_script1 }}):</small>
+                                                <p class="mb-2 mt-1">{{ line.text_script1 }}</p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <small class="text-muted">Student {{ result.script2_id }} (Line {{ line.line_number_script2 }}):</small>
+                                                <p class="mb-2 mt-1">{{ line.text_script2 }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="text-end">
+                                            <span class="similarity-score">
+                                                Similarity: {{ (line.similarity * 100)|round(1) }}%
+                                            </span>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <!-- No Results Found -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-check-circle fa-5x text-success mb-4"></i>
+                    <h3 class="text-success">No Significant Similarities Detected! </h3>
+                    <p class="text-muted mb-4">The analysis did not find any significant evidence of academic dishonesty in the submitted scripts.</p>
+                    <div class="alert alert-success">
+                        <strong>Status:</strong> All scripts show normal academic variations. No immediate action required.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Action Buttons -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center">
+                    <a href="{{ url_for('malpractice_check') }}" class="btn btn-primary btn-lg me-3">
+                         New Analysis
+                    </a>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary btn-lg">
+                         Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Font Awesome for Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+.alert-warning {
+    background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+    color: #856404;
+    border-left: 4px solid #ffc107;
+}
+
+.alert-error {
+    background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+    color: #721c24;
+    border-left: 4px solid #dc3545;
+}
+</style>
+{% endblock %}

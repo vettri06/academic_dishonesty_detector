@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card slide-up">
+        <!-- Header Section -->
+        <div class="auth-header">
+            <div class="text-center">
+                <i class="fas fa-user-plus fa-3x mb-3"></i>
+                <h1 class="h2 font-weight-bold">Create Account</h1>
+                <p class="mb-0 opacity-75">Join Academic Integrity System today</p>
+            </div>
+        </div>
+
+        <!-- Signup Form -->
+        <div class="auth-body">
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
+                            <div class="d-flex align-items-center">
+                                <i class="fas {% if category == 'error' %}fa-exclamation-circle{% else %}fa-check-circle{% endif %} me-2"></i>
+                                <span>{{ message }}</span>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST" class="needs-validation" novalidate>
+                <!-- Faculty Name -->
+                <div class="mb-3">
+                    <label for="faculty_name" class="form-label">
+                        <i class="fas fa-user-tie me-2 text-primary"></i>Faculty Name
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0">
+                            <i class="fas fa-user-tie text-muted"></i>
+                        </span>
+                        <input type="text" 
+                               class="form-control border-start-0 ps-2" 
+                               id="faculty_name" 
+                               name="faculty_name" 
+                               placeholder="Enter your full name"
+                               value="{{ request.form.faculty_name if request.form }}"
+                               required>
+                    </div>
+                    <div class="invalid-feedback">
+                        Please enter your faculty name.
+                    </div>
+                </div>
+
+                <!-- Username -->
+                <div class="mb-3">
+                    <label for="username" class="form-label">
+                        <i class="fas fa-user me-2 text-primary"></i>Username
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0">
+                            <i class="fas fa-user text-muted"></i>
+                        </span>
+                        <input type="text" 
+                               class="form-control border-start-0 ps-2" 
+                               id="username" 
+                               name="username" 
+                               placeholder="Choose a username"
+                               value="{{ request.form.username if request.form }}"
+                               required>
+                    </div>
+                    <div class="invalid-feedback">
+                        Please choose a username.
+                    </div>
+                </div>
+
+                <!-- Email -->
+                <div class="mb-3">
+                    <label for="email" class="form-label">
+                        <i class="fas fa-envelope me-2 text-primary"></i>Email Address
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0">
+                            <i class="fas fa-envelope text-muted"></i>
+                        </span>
+                        <input type="email" 
+                               class="form-control border-start-0 ps-2" 
+                               id="email" 
+                               name="email" 
+                               placeholder="Enter your email"
+                               value="{{ request.form.email if request.form }}"
+                               required>
+                    </div>
+                    <div class="invalid-feedback">
+                        Please enter a valid email address.
+                    </div>
+                </div>
+
+                <!-- Password -->
+                <div class="mb-3">
+                    <label for="password" class="form-label">
+                        <i class="fas fa-lock me-2 text-primary"></i>Password
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0">
+                            <i class="fas fa-lock text-muted"></i>
+                        </span>
+                        <input type="password" 
+                               class="form-control border-start-0 ps-2" 
+                               id="password" 
+                               name="password" 
+                               placeholder="Create a password"
+                               required
+                               minlength="6">
+                        <button type="button" class="input-group-text toggle-password" data-target="password">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="form-text">
+                        Password must be at least 6 characters long.
+                    </div>
+                    <div class="invalid-feedback">
+                        Please enter a password with at least 6 characters.
+                    </div>
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="mb-4">
+                    <label for="confirm_password" class="form-label">
+                        <i class="fas fa-lock me-2 text-primary"></i>Confirm Password
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0">
+                            <i class="fas fa-lock text-muted"></i>
+                        </span>
+                        <input type="password" 
+                               class="form-control border-start-0 ps-2" 
+                               id="confirm_password" 
+                               name="confirm_password" 
+                               placeholder="Confirm your password"
+                               required>
+                        <button type="button" class="input-group-text toggle-password" data-target="confirm_password">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="invalid-feedback">
+                        Passwords must match.
+                    </div>
+                </div>
+
+                <!-- Terms and Conditions -->
+                <div class="mb-4">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="terms" name="terms" required>
+                        <label class="form-check-label small text-muted" for="terms">
+                            I agree to the <a href="#" class="text-primary text-decoration-none">Terms of Service</a> 
+                            and <a href="#" class="text-primary text-decoration-none">Privacy Policy</a>
+                        </label>
+                        <div class="invalid-feedback">
+                            You must agree before submitting.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary w-100 py-3 mb-3">
+                    <i class="fas fa-user-plus me-2"></i>Create Account
+                </button>
+
+                <!-- Login Link -->
+                <div class="text-center">
+                    <p class="mb-0 text-muted">
+                        Already have an account?
+                        <a href="{{ url_for('login') }}" class="text-primary text-decoration-none fw-bold">
+                            Sign in here
+                        </a>
+                    </p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Password confirmation validation
+    const password = document.getElementById('password');
+    const confirmPassword = document.getElementById('confirm_password');
+    
+    function validatePassword() {
+        if (password.value !== confirmPassword.value) {
+            confirmPassword.setCustomValidity("Passwords don't match");
+        } else {
+            confirmPassword.setCustomValidity('');
+        }
+    }
+    
+    password.addEventListener('change', validatePassword);
+    confirmPassword.addEventListener('keyup', validatePassword);
+
+    // Toggle password visibility
+    const toggleButtons = document.querySelectorAll('.toggle-password');
+    toggleButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const targetId = this.getAttribute('data-target');
+            const passwordInput = document.getElementById(targetId);
+            const icon = this.querySelector('i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+    });
+
+    // Form validation
+    const forms = document.querySelectorAll('.needs-validation');
+    forms.forEach(form => {
+        form.addEventListener('submit', event => {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
+});
+</script>
+{% endblock %}
