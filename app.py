@@ -13,12 +13,12 @@ import json
 import io
 import sqlite3
 
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your-secret-key-here-change-in-production'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
+app = Flask(__name__, template_folder='Templates', static_folder='static')
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///instance/app.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['UPLOAD_FOLDER'] = 'uploads'
-app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB max file size
+app.config['UPLOAD_FOLDER'] = os.getenv('UPLOAD_FOLDER', 'uploads')
+app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024
 
 # Initialize extensions
 db.init_app(app)
@@ -31,8 +31,8 @@ login_manager.login_message_category = 'danger'
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# Create upload folder
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+os.makedirs('instance', exist_ok=True)
 
 def init_db():
     """Initialize database with proper schema"""
@@ -331,8 +331,10 @@ def analyze_scripts(session_id):
     
     if file_paths:
         try:
-            # Run analysis with OCR
-            API_KEY = "K82241565188957"  # Your OCR API key
+            api_key_env = os.getenv('OCR_API_KEY')
+            API_KEY = api_key_env if api_key_env else 'helloworld'
+            if not api_key_env:
+                flash('OCR_API_KEY not set; using limited demo OCR key. Results may be incomplete.', 'warning')
             processed_scripts = detector.process_scripts_with_ocr(file_paths, API_KEY)
             
             if processed_scripts:
@@ -376,10 +378,18 @@ def analyze_scripts(session_id):
                 if is_ajax:
                     return jsonify({'status': 'success', 'redirect_url': url_for('results', session_id=session_id)})
             else:
-                flash('OCR processing failed. Using demo analysis.', 'warning')
-                if is_ajax:
-                    return jsonify({'status': 'warning', 'message': 'OCR processing failed. Using demo analysis.', 'redirect_url': url_for('demo_results', session_id=session_id)})
-                return redirect(url_for('demo_results', session_id=session_id))
+                allow_demo = os.getenv('ALLOW_DEMO_FALLBACK', '1') == '1'
+                if allow_demo:
+                    flash('OCR processing failed. Using demo analysis.', 'warning')
+                    if is_ajax:
+                        return jsonify({'status': 'warning', 'message': 'OCR processing failed. Using demo analysis.', 'redirect_url': url_for('demo_results', session_id=session_id)})
+                    return redirect(url_for('demo_results', session_id=session_id))
+                else:
+                    msg = 'OCR processing failed. Please check OCR_API_KEY and image quality.'
+                    if is_ajax:
+                        return jsonify({'status': 'error', 'message': msg}), 500
+                    flash(msg, 'danger')
+                    return redirect(url_for('upload_scripts', session_id=session_id))
                 
         except Exception as e:
             db.session.rollback()
@@ -388,11 +398,18 @@ def analyze_scripts(session_id):
                  return jsonify({'status': 'error', 'message': f'Analysis failed: {str(e)}', 'redirect_url': url_for('demo_results', session_id=session_id)})
             return redirect(url_for('demo_results', session_id=session_id))
     else:
-        # No files uploaded, use demo analysis
-        flash('No answer scripts uploaded. Using demo analysis.', 'info')
-        if is_ajax:
-             return jsonify({'status': 'info', 'message': 'No answer scripts uploaded. Using demo analysis.', 'redirect_url': url_for('demo_results', session_id=session_id)})
-        return redirect(url_for('demo_results', session_id=session_id))
+        allow_demo = os.getenv('ALLOW_DEMO_FALLBACK', '1') == '1'
+        if allow_demo:
+            flash('No answer scripts uploaded. Using demo analysis.', 'info')
+            if is_ajax:
+                 return jsonify({'status': 'info', 'message': 'No answer scripts uploaded. Using demo analysis.', 'redirect_url': url_for('demo_results', session_id=session_id)})
+            return redirect(url_for('demo_results', session_id=session_id))
+        else:
+            msg = 'No answer scripts uploaded. Please upload images to run OCR.'
+            if is_ajax:
+                 return jsonify({'status': 'error', 'message': msg}), 400
+            flash(msg, 'danger')
+            return redirect(url_for('upload_scripts', session_id=session_id))
     
     return redirect(url_for('results', session_id=session_id))
 
@@ -403,13 +420,15 @@ def results(session_id):
     students = Student.query.filter_by(session_id=session_id).all()
     results = AnalysisResult.query.filter_by(session_id=session_id).all()
     
-    # Convert suspicious lines from JSON string to Python objects
+    # Attach parsed suspicious lines for view without mutating DB column
     for result in results:
+        parsed = []
         if result.suspicious_lines:
             try:
-                result.suspicious_lines = json.loads(result.suspicious_lines)
-            except:
-                result.suspicious_lines = []
+                parsed = json.loads(result.suspicious_lines)
+            except Exception:
+                parsed = []
+        setattr(result, 'parsed_suspicious_lines', parsed)
     
     return render_template('results.html', 
                          session=session, 
@@ -505,13 +524,15 @@ def demo_results(session_id):
     # Fetch the saved results
     results = AnalysisResult.query.filter_by(session_id=session_id).all()
     
-    # Convert suspicious lines from JSON string to Python objects
+    # Attach parsed suspicious lines for view without mutating DB column
     for result in results:
+        parsed = []
         if result.suspicious_lines:
             try:
-                result.suspicious_lines = json.loads(result.suspicious_lines)
-            except:
-                result.suspicious_lines = []
+                parsed = json.loads(result.suspicious_lines)
+            except Exception:
+                parsed = []
+        setattr(result, 'parsed_suspicious_lines', parsed)
     
     flash(f'Demo analysis completed for {student_count} students!', 'info')
     return render_template('results.html', 
@@ -737,15 +758,79 @@ def too_large(error):
     flash('File too large. Maximum file size is 10MB.', 'danger')
     return redirect(request.url)
 
+@app.route('/health')
+def health():
+    status = {'db': False, 'upload_dir': False, 'env': {}, 'ok': False}
+    try:
+        db.session.execute(db.text('SELECT 1'))
+        status['db'] = True
+    except Exception:
+        status['db'] = False
+    try:
+        upload_dir = app.config['UPLOAD_FOLDER']
+        os.makedirs(upload_dir, exist_ok=True)
+        test_path = os.path.join(upload_dir, '.write_test')
+        with open(test_path, 'w') as f:
+            f.write('ok')
+        os.remove(test_path)
+        status['upload_dir'] = True
+    except Exception:
+        status['upload_dir'] = False
+    status['env'] = {
+        'database_url': app.config.get('SQLALCHEMY_DATABASE_URI', ''),
+        'upload_folder': app.config.get('UPLOAD_FOLDER', ''),
+        'debug': os.getenv('FLASK_DEBUG', '0')
+    }
+    status['ok'] = status['db'] and status['upload_dir']
+    return jsonify(status), (200 if status['ok'] else 503)
+
+@app.route('/debug/ocr/<path:filename>')
+@login_required
+def debug_ocr(filename):
+    try:
+        detector = AcademicDishonestyDetector()
+        upload_dir = app.config['UPLOAD_FOLDER']
+        file_path = os.path.join(upload_dir, filename)
+        if not os.path.exists(file_path):
+            return jsonify({'error': 'file_not_found', 'path': file_path}), 404
+        size_kb = round(os.path.getsize(file_path) / 1024, 1)
+        api_key = os.getenv('OCR_API_KEY', '')
+        processed_file_path = detector.compress_image(file_path) if size_kb > 900 else file_path
+        result = detector.ocr_space_file(filename=processed_file_path, language="eng", api_key=api_key)
+        text = detector.extract_text(result)
+        resp = {
+            'file': filename,
+            'size_kb': size_kb,
+            'used_compressed': processed_file_path != file_path,
+            'ocr_exit_code': result.get('OCRExitCode'),
+            'is_errored': result.get('IsErroredOnProcessing'),
+            'error_message': result.get('ErrorMessage'),
+            'parsed_text_len': len(text),
+            'parsed_text_head': text[:300]
+        }
+        return jsonify(resp), 200
+    except Exception as e:
+        return jsonify({'error': 'exception', 'message': str(e)}), 500
+
 # Database initialization and startup
 if __name__ == '__main__':
     with app.app_context():
-        # Check if database exists, if not create it
-        if not os.path.exists('app.db'):
+        db_uri = app.config['SQLALCHEMY_DATABASE_URI']
+        db_path = None
+        if db_uri.startswith('sqlite:////'):
+            db_path = db_uri.replace('sqlite:////', '/', 1)
+        elif db_uri.startswith('sqlite:///'):
+            db_rel = db_uri.replace('sqlite:///', '', 1)
+            db_path = db_rel if os.path.isabs(db_rel) else os.path.join(os.getcwd(), db_rel)
+        # Ensure parent directory exists for SQLite
+        if db_path:
+            parent_dir = os.path.dirname(db_path)
+            if parent_dir and not os.path.exists(parent_dir):
+                os.makedirs(parent_dir, exist_ok=True)
+        if db_path and not os.path.exists(db_path):
             print("Creating new database...")
             init_db()
         else:
-            # Check and fix existing database
             check_and_fix_database()
     
     print("=" * 60)
@@ -762,4 +847,4 @@ if __name__ == '__main__':
     print("   ✓ PDF report generation")
     print("=" * 60)
     
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=os.getenv('FLASK_DEBUG', '0') == '1', host='0.0.0.0', port=5000)

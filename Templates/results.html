@@ -138,17 +138,17 @@
                             </div>
 
                             <!-- Suspicious Lines -->
-                            {% if result.suspicious_lines %}
+                            {% if result.parsed_suspicious_lines %}
                             <button class="btn btn-outline-primary w-100 mb-3" type="button" 
                                     data-bs-toggle="collapse" 
                                     data-bs-target="#suspiciousLines{{ result.id }}">
-                                🔍 View Suspicious Lines ({{ result.suspicious_lines|length }} found)
+                                🔍 View Suspicious Lines ({{ result.parsed_suspicious_lines|length }} found)
                             </button>
                             
                             <div class="collapse" id="suspiciousLines{{ result.id }}">
                                 <div class="card card-body">
                                     <h6 class="mb-3">📝 Identical/Suspicious Content:</h6>
-                                    {% for line in result.suspicious_lines %}
+                                    {% for line in result.parsed_suspicious_lines %}
                                     <div class="suspicious-line mb-3">
                                         <div class="row">
                                             <div class="col-md-6">

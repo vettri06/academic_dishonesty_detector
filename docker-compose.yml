@@ -1,0 +1,14 @@
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - SECRET_KEY=${SECRET_KEY:-change-me}
+      - OCR_API_KEY=${OCR_API_KEY:-}
+      - DATABASE_URL=sqlite:////app/instance/app.db
+      - FLASK_DEBUG=0
+      - ALLOW_DEMO_FALLBACK=${ALLOW_DEMO_FALLBACK:-1}
+    volumes:
+      - ./uploads:/app/uploads
+      - ./instance:/app/instance
