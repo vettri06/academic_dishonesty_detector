@@ -43,8 +43,7 @@ class AcademicDishonestyDetector:
                     
                     if compressed_size_kb <= max_size_kb or quality <= 20:
                         # Save compressed image
-                        root, ext = os.path.splitext(file_path)
-                        compressed_path = f"{root}_compressed{ext or '.jpg'}"
+                        compressed_path = file_path.replace('.', '_compressed.')
                         with open(compressed_path, 'wb') as f:
                             f.write(buffer.getvalue())
                         print(f"✓ Compressed to: {compressed_size_kb:.1f} KB (quality: {quality}%)")
@@ -61,8 +60,7 @@ class AcademicDishonestyDetector:
                 
                 buffer = io.BytesIO()
                 img_resized.save(buffer, format='JPEG', quality=80, optimize=True)
-                root, ext = os.path.splitext(file_path)
-                compressed_path = f"{root}_compressed{ext or '.jpg'}"
+                compressed_path = file_path.replace('.', '_compressed.')
                 with open(compressed_path, 'wb') as f:
                     f.write(buffer.getvalue())
                 
@@ -538,15 +536,9 @@ class AcademicDishonestyDetector:
         return hashlib.md5(text.encode()).hexdigest()
     
     def ocr_space_file(self, filename, overlay=False, api_key='helloworld', language='eng',
-                      is_table=False, OCREngine=None, detect_orientation=True, scale=True,
+                      is_table=False, OCREngine=2, detect_orientation=True, scale=True,
                       is_create_searchable_pdf=True, is_searchable_pdf_hidden=False):
         """OCR.space API request with local file. Returns JSON as Python dict."""
-        import os as _os
-        if OCREngine is None:
-            try:
-                OCREngine = int(_os.getenv('OCR_ENGINE', '3'))
-            except Exception:
-                OCREngine = 3
         payload = {
             'isOverlayRequired': overlay,
             'apikey': api_key,
